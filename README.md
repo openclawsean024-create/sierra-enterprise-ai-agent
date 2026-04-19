@@ -7,15 +7,11 @@
 - GPT-4o mini for NLU and response generation
 - Vercel deployment
 
-## Features
-- FAQ Bot with NLU intent recognition
-- Multi-turn dialogue management
-- Human handoff mechanism
-- Ticket system integration
+## M1 MVP Features
+- FAQ Bot with keyword-based intent recognition
+- Global floating chat widget（出現在所有頁面）
+- Brand color: #2563EB
 - Multi-language (繁體中文, English, 簡體中文)
-- Analytics dashboard
-- Chat widget embed
-- Webhook API
 
 ## Getting Started
 ```bash
