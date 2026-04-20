@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sierra Enterprise AI Agent",
-  description: "企業客服 AI Agent",
+  title: "AI 面試助理 | 你的智能面試伙伴",
+  description: "在遠端面試時，AI 即時聆聽問題、分析並在側邊欄顯示專業答案建議與參考資料，幫助求職者在面試中表現得更加專業。",
 };
 
 export default function RootLayout({
