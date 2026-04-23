@@ -38,3 +38,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get('sessionId');
+
+  // Return mock session history
+  return NextResponse.json({
+    sessionId,
+    messages: [],
+    createdAt: new Date().toISOString(),
+  });
+}
