@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { listFaqs, createFaq, updateFaq, deleteFaq } from '@/lib/supabase';
 
-const mockFaqs = [
+const MOCK_FAQS = [
   { id: '1', question: '運費怎麼算？', answer: '滿 $500 免運，標準運費 $60，急速配送 $120', tags: ['運費', '配送'], createdAt: '2026-04-20T10:00:00Z' },
   { id: '2', question: '如何申請退貨？', answer: '收到商品後 7 天內可申請退貨，請保持原包裝完整', tags: ['退貨', '售後'], createdAt: '2026-04-19T09:00:00Z' },
   { id: '3', question: '支援哪些付款方式？', answer: '支援信用卡、LINE Pay、街口支付、超商代碼繳費', tags: ['付款'], createdAt: '2026-04-18T08:00:00Z' },
@@ -9,28 +10,64 @@ const mockFaqs = [
 ];
 
 export async function GET() {
-  return NextResponse.json({ faqs: mockFaqs });
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const { data, error } = await listFaqs();
+      if (!error && data) return NextResponse.json({ faqs: data });
+    } catch { /* fall through to mock */ }
+  }
+  return NextResponse.json({ faqs: MOCK_FAQS });
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { question, answer, tags } = body;
-
+    const { question, answer, tags } = await req.json();
     if (!question || !answer) {
       return NextResponse.json({ error: 'question and answer are required' }, { status: 400 });
     }
 
-    const newFaq = {
-      id: String(mockFaqs.length + 1),
-      question,
-      answer,
-      tags: tags || [],
-      createdAt: new Date().toISOString(),
-    };
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      try {
+        const { data, error } = await createFaq({ question, answer, tags });
+        if (!error && data) return NextResponse.json({ faq: data }, { status: 201 });
+      } catch { /* fall through */ }
+    }
 
-    return NextResponse.json({ faq: newFaq }, { status: 201 });
+    return NextResponse.json({ faq: { id: String(Date.now()), question, answer, tags: tags ?? [], createdAt: new Date().toISOString() } }, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const { id, question, answer, tags } = await req.json();
+    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      try {
+        const { data, error } = await updateFaq(id, { question, answer, tags });
+        if (!error && data) return NextResponse.json({ faq: data });
+      } catch { /* fall through */ }
+    }
+
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const { error } = await deleteFaq(id);
+      if (!error) return NextResponse.json({ success: true });
+    } catch { /* fall through */ }
+  }
+
+  return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
 }
