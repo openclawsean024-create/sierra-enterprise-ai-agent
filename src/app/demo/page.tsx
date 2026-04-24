@@ -38,6 +38,13 @@ export default function DemoPage() {
     }
   };
 
+  const handleFAQClick = (q: string) => {
+    setInput(q);
+    // Create a synthetic submit event to trigger the form
+    const form = document.getElementById('demo-chat-form');
+    if (form) form.requestSubmit();
+  };
+
   const quickQuestions = ['運費怎麼算？', '如何退貨？', '訂單進度？', '付款方式有哪些？'];
 
   return (
@@ -131,7 +138,7 @@ export default function DemoPage() {
             {quickQuestions.map((q, i) => (
               <button
                 key={i}
-                onClick={() => { setInput(q); }}
+                onClick={() => handleFAQClick(q)}
                 className="text-xs px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-blue-600 hover:bg-blue-100 transition-all"
               >
                 {q}
@@ -140,11 +147,12 @@ export default function DemoPage() {
           </div>
 
           {/* Input */}
-          <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
+          <form id="demo-chat-form" onSubmit={handleSubmit} className="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(e as unknown as React.FormEvent); } }}
               placeholder="輸入您的問題..."
               disabled={isLoading}
               className="flex-1 px-5 py-3 bg-slate-50 border border-slate-200 rounded-full text-sm outline-none focus:border-blue-400 focus:bg-white transition-all disabled:opacity-50"
