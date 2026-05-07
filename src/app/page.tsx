@@ -1,6 +1,8 @@
+import Footer from '@/components/Footer';
+
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -222,17 +224,13 @@ export default function HomePage() {
         </div>
         <div className="bg-slate-900 rounded-2xl p-6 font-mono text-sm overflow-x-auto">
           <div className="text-slate-500 mb-3 text-xs">&lt;!-- Sierra AI 客服 Widget --&gt;</div>
-          <div className="text-cyan-300">&lt;script <span className="text-yellow-300">src</span>=<span className="text-green-300">&quot;https://sierra-enterprise-ai-agent.vercel.app/widget.js&quot;</span>&gt;&lt;/script&gt;</div>
+          <div className="text-cyan-300">&lt;script <span className="text-yellow-300">src</span>=<span className="text-green-300">&quot;https://eliseai.vercel.app/widget.js&quot;</span>&gt;&lt;/script&gt;</div>
           <div className="text-cyan-300">&lt;div <span className="text-yellow-300">data-sierra-api-key</span>=<span className="text-green-300">&quot;YOUR_API_KEY&quot;</span>&gt;&lt;/div&gt;</div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 py-8 border-t border-slate-100 text-center">
-        <p className="text-slate-400 text-sm">
-          Sierra Enterprise AI Agent © 2026 | 一行程式碼，瞬間上線 AI 客服
-        </p>
-      </footer>
+      <Footer />
     </main>
   );
 }

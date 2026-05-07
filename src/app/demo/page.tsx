@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import Footer from '@/components/Footer';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -13,6 +14,7 @@ export default function DemoPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,15 +42,20 @@ export default function DemoPage() {
 
   const handleFAQClick = (q: string) => {
     setInput(q);
-    // Create a synthetic submit event to trigger the form
-    const form = document.getElementById('demo-chat-form');
-    if (form) form.requestSubmit();
+    // Small delay to ensure state is updated before submitting
+    setTimeout(() => {
+      const form = formRef.current;
+      if (form) {
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        form.dispatchEvent(submitEvent);
+      }
+    }, 0);
   };
 
   const quickQuestions = ['運費怎麼算？', '如何退貨？', '訂單進度？', '付款方式有哪些？'];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -82,7 +89,7 @@ export default function DemoPage() {
       </section>
 
       {/* Chat Demo */}
-      <section className="px-6 pb-16 max-w-4xl mx-auto">
+      <section className="px-6 pb-16 max-w-4xl mx-auto flex-1">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
           {/* Demo Banner */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4 flex items-center gap-3">
@@ -138,6 +145,7 @@ export default function DemoPage() {
             {quickQuestions.map((q, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => handleFAQClick(q)}
                 className="text-xs px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-blue-600 hover:bg-blue-100 transition-all"
               >
@@ -147,12 +155,11 @@ export default function DemoPage() {
           </div>
 
           {/* Input */}
-          <form id="demo-chat-form" onSubmit={handleSubmit} className="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
+          <form ref={formRef} onSubmit={handleSubmit} className="p-4 bg-white border-t border-slate-100 flex items-center gap-3">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleSubmit(e as unknown as React.FormEvent); } }}
               placeholder="輸入您的問題..."
               disabled={isLoading}
               className="flex-1 px-5 py-3 bg-slate-50 border border-slate-200 rounded-full text-sm outline-none focus:border-blue-400 focus:bg-white transition-all disabled:opacity-50"
@@ -178,19 +185,14 @@ export default function DemoPage() {
             <span className="text-slate-300 font-medium">嵌入程式碼</span>
           </div>
           <div className="font-mono text-sm overflow-x-auto">
-            <pre className="text-cyan-300">{`<!-- Sierra AI 客服 Widget -->`}</pre>
-            <pre className="text-cyan-300 mt-1">{`<script src="https://sierra-enterprise-ai-agent.vercel.app/widget.js"></script>`}</pre>
-            <pre className="text-cyan-300 mt-1">{`<div data-sierra-api-key="YOUR_API_KEY"></div>`}</pre>
+            <pre className="text-slate-500 mb-1">&lt;!-- Sierra AI 客服 Widget --&gt;</pre>
+            <pre className="text-cyan-300">&lt;script src=&quot;https://eliseai.vercel.app/widget.js&quot;&gt;&lt;/script&gt;</pre>
+            <pre className="text-cyan-300">&lt;div data-sierra-api-key=&quot;YOUR_API_KEY&quot;&gt;&lt;/div&gt;</pre>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="px-6 py-8 border-t border-slate-100 text-center">
-        <p className="text-slate-400 text-sm">
-          Sierra Enterprise AI Agent © 2026 | 一行程式碼，瞬間上線 AI 客服
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Footer from '@/components/Footer';
 
 const mockFaqs = [
   { id: '1', question: '運費怎麼算？', answer: '滿 $500 免運，標準運費 $60，急速配送 $120', tags: ['運費', '配送'], updatedAt: '2026-04-20' },
@@ -14,7 +15,7 @@ export default function AdminPage() {
   const [selectedTab, setSelectedTab] = useState<'faqs' | 'stats'>('faqs');
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -29,10 +30,11 @@ export default function AdminPage() {
         <nav className="flex items-center gap-4">
           <span className="text-sm text-slate-500">管理後台</span>
           <a href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">返回首頁</a>
+          <a href="/login" className="text-sm text-red-600 hover:text-red-700 transition-colors">登出</a>
         </nav>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex-1">
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900">管理後台</h1>
@@ -189,6 +191,8 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }

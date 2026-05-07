@@ -1,15 +1,10 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
 
-function LoginSuccessMessage() {
-  // Just render nothing on server/initial load
-  return null;
-}
-
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,14 +15,20 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    if (!name || !email || !password) {
       setError('請填寫所有欄位');
+      return;
+    }
+    if (password.length < 8) {
+      setError('密碼長度至少 8 個字元');
       return;
     }
 
     setIsLoading(true);
+
+    // Mock registration — redirect to login
     setTimeout(() => {
-      router.push('/admin');
+      router.push('/login?registered=true');
     }, 800);
   };
 
@@ -51,21 +52,35 @@ export default function LoginPage() {
         </nav>
       </header>
 
-      {/* Login Form */}
+      {/* Register Form */}
       <div className="flex-1 flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-slate-900 mb-3">登入管理後台</h1>
-            <p className="text-slate-500">使用您的帳戶登入 Sierra</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-3">建立帳戶</h1>
+            <p className="text-slate-500">立即開始，免費試用 Starter 方案</p>
           </div>
 
           <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="bg-green-50 border border-green-100 text-green-600 text-sm px-4 py-3 rounded-xl">
+                <div className="bg-red-50 border border-red-100 text-red-600 text-sm px-4 py-3 rounded-xl">
                   {error}
                 </div>
               )}
+
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
+                  姓名
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="王大明"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:bg-white transition-all"
+                />
+              </div>
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
@@ -93,14 +108,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-400 focus:bg-white transition-all"
                 />
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                  記住我
-                </label>
-                <a href="#" className="text-blue-600 hover:text-blue-700">忘記密碼？</a>
+                <p className="text-xs text-slate-400 mt-1.5">密碼長度至少 8 個字元</p>
               </div>
 
               <button
@@ -108,29 +116,39 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? '登入中...' : '登入'}
+                {isLoading ? '註冊中...' : '建立帳戶'}
               </button>
             </form>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-slate-500">
-                還沒有帳戶？{' '}
-                <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-                  立即註冊
+                已有帳戶？{' '}
+                <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                  登入
                 </a>
               </p>
             </div>
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-6">
-            登入即表示您同意我們的{' '}
+            註冊即表示您同意我們的{' '}
             <a href="/terms" className="underline">服務條款</a> 與{' '}
             <a href="/privacy" className="underline">隱私權政策</a>
           </p>
         </div>
       </div>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="px-6 py-8 border-t border-slate-100 text-center">
+        <p className="text-slate-400 text-sm">
+          Sierra Enterprise AI Agent © 2026 |{" "}
+          <a href="/privacy" className="hover:text-slate-600 transition-colors">隱私權政策</a>
+          {"|"}{" "}
+          <a href="/terms" className="hover:text-slate-600 transition-colors">服務條款</a>
+          {"|"}{" "}
+          <a href="/contact" className="hover:text-slate-600 transition-colors">聯絡我們</a>
+        </p>
+      </footer>
     </div>
   );
 }
