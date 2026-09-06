@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 interface Message {
@@ -68,7 +69,7 @@ export default function DemoPage() {
           </div>
         </div>
         <nav className="flex items-center gap-6">
-          <a href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">首頁</a>
+          <Link href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">首頁</Link>
           <a href="/pricing" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">定價</a>
           <a href="/demo" className="text-sm font-medium text-blue-600">Demo</a>
           <a href="/admin" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">後台</a>

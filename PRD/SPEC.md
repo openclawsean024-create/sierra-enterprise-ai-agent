@@ -1,6 +1,16 @@
+> **v3.0.2 Fleet Alignment（2026-09-06，Sean 10-repo-fleet）**：
+> - 維護者改為 **Sean 10-repo-fleet**（CPO Sophia 交接）
+> - 新增 §17 監控 / §18 維運 / §19 安全（Fleet 規格 19 章）
+> - 對齊 SPEC v3.0 契約（§1-§19 全部套用）
+> - 既有 §1-§16 v3.0 sweet-spot rewrite（893 行）原封保留
+> - GHA 4-job CI：lint / test / build / deploy-to-Vercel
+
+---
+
 # 台灣 LINE 客服 AI — 中小企業專用語音 + 圖文選單智慧客服 — 規格計劃書 v3.0 (sweet-spot rewrite)
 
-> 版本：v3.0｜更新日期：2026-07-19｜維護者：Sophia (CPO) for Sean
+> 版本：v3.0.2｜原始 v3.0 撰於 2026-07-19｜v3.0.2 Fleet Alignment 2026-09-06
+> 維護者：Sean 10-repo-fleet（v3.0 由 Sophia CPO 撰寫）
 > 對接技術：Alan (CTO) + Hermes Agent
 > 原始碼：https://github.com/openclawsean024-create/sierra-enterprise-ai-agent
 > Live：https://sierra-enterprise-ai-agent.vercel.app
@@ -891,3 +901,127 @@ model Conversation {
 | 綜合 Notion 分數 | 69 | **76** | (9.5×0.3 + 6.8×0.7)×10 = 76.1 ≈ 76 |
 
 **最終商業化評分 v3.0 v2**：**6.8 / 10**（中等水平，逼近「中高」門檻 — Intercom Fin/Sierra 在台灣 LINE 0% 滲透率明確 + 30 萬 LINE OA 觸達路徑 + 48 範本成本 NT$24.5 萬可執行 + 台語/客語資料 NT$35 萬可達成）
+
+---
+
+## 17. 監控與可觀測性 (Monitoring & Observability) — v3.0.2 新增
+
+### 17.1 健康指標
+| 指標 | 目標 | 工具 |
+|---|---|---|
+| Uptime（API 5xx） | ≥ 99.5% / 月 | Vercel Analytics |
+| Chat API p95 latency | ≤ 2.0s（含 OpenAI 呼叫） | Vercel Speed Insights |
+| OpenAI 錯誤率 | ≤ 1% | OpenAI Dashboard |
+| Supabase query p95 | ≤ 300ms | Supabase Dashboard |
+| Stripe Webhook 失敗率 | ≤ 0.5% | Vercel Logs |
+
+### 17.2 業務指標（每日）
+- 活躍 session 數（`/api/chat` 24h 內 distinct session_id）
+- 對話完成率（user 訊息 → bot 滿意回覆）
+- FAQ 命中率（keyword fallback vs OpenAI）
+- 付費轉換（free → pro / enterprise）
+- MRR / Churn rate
+
+### 17.3 告警通道
+- Vercel Deploy 失敗 → GitHub Commit Status
+- OpenAI 5xx 連續 5 次 → Email 通知
+- Supabase 連線錯誤 → Vercel Function Logs
+
+### 17.4 Log 保留
+- Vercel Function Logs：14 天免費 / 30 天 Pro
+- Supabase Logs：7 天免費 / 90 天 Pro
+- 不存個資（PII）於 log — OpenAI prompt 已脫敏
+
+---
+
+## 18. 維運 (Operations) — v3.0.2 新增
+
+### 18.1 部署流程
+```
+push main → GHA ci.yml 4 jobs (lint / test / build / deploy)
+                ↓ pass
+            Vercel Production 自動 deploy
+                ↓
+            Slack/Email 通知
+```
+
+### 18.2 環境分層
+| 環境 | URL | 觸發 | DB |
+|---|---|---|---|
+| Production | sierra-enterprise-ai-agent.vercel.app | push main | Supabase prod |
+| Preview | PR-*.vercel.app | PR opened | Supabase staging |
+| Local | localhost:3000 | `npm run dev` | Supabase local / mock |
+
+### 18.3 環境變數
+| 變數 | 用途 | 必填 |
+|---|---|---|
+| `OPENAI_API_KEY` | GPT-4o mini NLU | ✅ |
+| `STRIPE_SECRET_KEY` | Stripe 訂閱 + Webhook | ✅ |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook 驗證 | ✅ |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase client | ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin | ✅ |
+| `NEXT_PUBLIC_APP_URL` | 回呼 URL（CORS / Stripe redirect） | ✅ |
+
+### 18.4 Rollback
+- Vercel：1-click rollback 至上一個 successful deploy
+- 資料庫：Supabase point-in-time recovery（Pro plan 7 天）
+- Code：`git revert` + push → 自動 deploy
+
+### 18.5 維運時段
+- 非緊急：48h 內回應
+- P0 故障（production down）：4h 內回應
+
+---
+
+## 19. 安全 (Security) — v3.0.2 新增
+
+### 19.1 OWASP Top 10 對照
+| 風險 | 緩解 |
+|---|---|
+| A01 Broken Access Control | Supabase RLS（conversations / faqs / subscriptions 開 anon policy 因目前 demo）|
+| A02 Cryptographic Failures | HTTPS only（Vercel 強制）|
+| A03 Injection (XSS / SQLi) | React 自動 escape / Supabase parameterized query |
+| A04 Insecure Design | API route 全部用 `NextRequest` + JSON schema 驗證 |
+| A05 Security Misconfig | CORS 預設同源 / 環境變數不入 git |
+| A06 Vulnerable Components | `npm audit` 在 GHA 跑 / Dependabot 自動 PR |
+| A07 Auth Failures | Supabase Auth + 將來加 rate-limit（目前 demo 未啟用）|
+| A08 Data Integrity | Stripe Webhook 簽章驗證 |
+| A09 Logging Failures | Vercel Function Logs + Supabase Logs |
+| A10 SSRF | 圖片 remotePatterns 限 `images.unsplash.com` / `avatars.githubusercontent.com` |
+
+### 19.2 Secret 管理
+- **永不 commit secret** — `.env*` 已在 `.gitignore`
+- Vercel Environment Variables 統一管理
+- 本地開發用 `.env.local`（gitignore）
+- Token rotation：每 90 天換一次（OpenAI / Stripe / Supabase service key）
+
+### 19.3 個資保護 (PDPA)
+- 對話記錄：session_id 為 random UUID，不含個資
+- 發票：使用者自填統編/抬頭，存 Supabase
+- Cookie：無第三方追蹤 cookie（GA/Pixel 未啟用）
+- 刪除請求：聯絡 sean's email，30 天內從 Supabase 刪除
+
+### 19.4 Rate Limit
+- `/api/chat`：每 session_id 30 req/min（待實作，目前無）
+- `/api/stripe/*`：由 Stripe 端保護
+- `/api/contact`：每 IP 5 req/hour（待實作，目前無）
+
+### 19.5 Dependency Audit
+- 每月 1 次 `npm audit` review
+- Critical / High：48h 內 patch
+- Moderate：當 sprint 排
+- Low：可延後
+
+---
+
+## 20. 變更日誌摘要
+
+完整變更歷史見 [`PRD/CHANGELOG.md`](PRD/CHANGELOG.md)。
+
+**v3.0.2 Fleet Alignment（2026-09-06）**：
+- 對齊 SPEC v3.0 契約（§1-§19）
+- 新增 §17 監控 / §18 維運 / §19 安全
+- 既有 §1-§16 v3.0 sweet-spot rewrite 內容完整保留
+- GHA 4-job CI：lint / test / build / deploy-to-Vercel
+- 維護者：Sean 10-repo-fleet

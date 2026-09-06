@@ -1,4 +1,5 @@
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 
 export default function PrivacyPage() {
   return (
@@ -14,7 +15,7 @@ export default function PrivacyPage() {
           </div>
         </div>
         <nav className="flex items-center gap-6">
-          <a href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">首頁</a>
+          <Link href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">首頁</Link>
           <a href="/pricing" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">定價</a>
           <a href="/demo" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Demo</a>
           <a href="/login" className="text-sm font-medium text-white bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">登入</a>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 const mockFaqs = [
@@ -29,7 +30,7 @@ export default function AdminPage() {
         </div>
         <nav className="flex items-center gap-4">
           <span className="text-sm text-slate-500">管理後台</span>
-          <a href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">返回首頁</a>
+          <Link href="/" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">返回首頁</Link>
           <a href="/login" className="text-sm text-red-600 hover:text-red-700 transition-colors">登出</a>
         </nav>
       </header>

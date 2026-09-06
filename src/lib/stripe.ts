@@ -41,11 +41,8 @@ export const stripe = {
       payload: string | Buffer,
       signature: string,
       secret: string,
-    ) => {
-      const { default: Stripe2 } = require('stripe');
-      const s = new Stripe2(process.env.STRIPE_SECRET_KEY!);
-      return s.webhooks.constructEvent(payload, signature, secret);
-    },
+    ) =>
+      getStripe().webhooks.constructEvent(payload, signature, secret),
   },
 };
 
